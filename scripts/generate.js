@@ -6,8 +6,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const SITE = "https://richmondresidences.ae";
-const ASSET_VERSION = "20260828b";
-const OG_CORAL = `${SITE}/images/coral-bay/og-image.webp`;
+const ASSET_VERSION = "20260828c";
 
 const GEO = {
   region: "AE-DU",
@@ -18,7 +17,15 @@ const GEO = {
 
 const LOGO = `${SITE}/images/logos/richmond-logo.png`;
 const LOGO_ALT = "John Richmond District — Richmond Residences";
-const OG_IMAGE = `${SITE}/images/hero/hero-night.webp`;
+const OG_DUBAI = `${SITE}/images/og/dubai-og.jpg`;
+const OG_DUBAI_ALT = "Richmond Residences (Richmond District) by Mira Developments — Al Furjan, Dubai";
+const OG_DUBAI_W = 2400;
+const OG_DUBAI_H = 1522;
+const OG_CORAL = `${SITE}/images/og/coral-bay-og.jpg`;
+const OG_CORAL_ALT = "John Richmond Residences at Mira Coral Bay — Ras Al Khaimah";
+const OG_CORAL_W = 2100;
+const OG_CORAL_H = 1172;
+const OG_IMAGE = OG_DUBAI;
 const DISCLAIMER =
   "richmondresidences.ae is an independent marketing site for Richmond Residences developments by Mira Developments, including Al Furjan, Dubai and Mira Coral Bay, Ras Al Khaimah. This is not the official Mira Developments website. Project details, pricing, and availability are subject to change and should be verified with Mira Developments or an authorized representative.";
 
@@ -122,6 +129,7 @@ function realEstateListingSchema() {
       url: `${SITE}/price-list/`,
       description: `From ${u.sqm} sqm / ${u.sqft} sqft`,
     })),
+    image: OG_DUBAI,
   };
 }
 
@@ -282,13 +290,71 @@ function footer(depth) {
     </footer>`;
 }
 
-function pageShell({ depth, title, description, canonical, path, schemas, body, keywords, geo, ogImage }) {
+function webPageSchema({ title, description, canonical, ogImage, ogImageAlt, ogW, ogH }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: title,
+    url: canonical,
+    description,
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: ogImage,
+      width: ogW,
+      height: ogH,
+      caption: ogImageAlt,
+    },
+  };
+}
+
+function headIcons(prefix) {
+  const f = `${prefix}favicon/`;
+  return `
+  <link rel="icon" type="image/svg+xml" href="${f}favicon.svg">
+  <link rel="icon" type="image/x-icon" href="${f}favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="${f}favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="${f}favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="${f}favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="${f}apple-icon-180x180.png">
+  <link rel="manifest" href="${prefix}manifest.json">`;
+}
+
+function pageShell({
+  depth,
+  title,
+  description,
+  canonical,
+  path,
+  schemas,
+  body,
+  keywords,
+  geo,
+  ogImage,
+  ogImageAlt,
+  ogImageWidth,
+  ogImageHeight,
+}) {
   const prefix = assetPrefix(depth);
   const cssHref = `${prefix}css/styles.css?v=${ASSET_VERSION}`;
   const jsTracker = `${prefix}js/tracker.js?v=${ASSET_VERSION}`;
   const jsMain = `${prefix}js/main.js?v=${ASSET_VERSION}`;
   const pageGeo = geo || GEO;
-  const pageOg = ogImage || OG_IMAGE;
+  const pageOg = ogImage || OG_DUBAI;
+  const pageOgAlt = ogImageAlt || OG_DUBAI_ALT;
+  const pageOgW = ogImageWidth || OG_DUBAI_W;
+  const pageOgH = ogImageHeight || OG_DUBAI_H;
+  const allSchemas = [
+    jsonLd(webPageSchema({
+      title,
+      description,
+      canonical,
+      ogImage: pageOg,
+      ogImageAlt: pageOgAlt,
+      ogW: pageOgW,
+      ogH: pageOgH,
+    })),
+    ...schemas,
+  ];
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -304,9 +370,15 @@ function pageShell({ depth, title, description, canonical, path, schemas, body, 
   ${keywords ? `<meta name="keywords" content="${esc(keywords)}">` : ""}
   <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="${esc(canonical)}">
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="${SITE}/sitemap.xml">
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:image" content="${pageOg}">
+  <meta property="og:image:secure_url" content="${pageOg}">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="${pageOgW}">
+  <meta property="og:image:height" content="${pageOgH}">
+  <meta property="og:image:alt" content="${esc(pageOgAlt)}">
   <meta property="og:url" content="${esc(canonical)}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Richmond Residences">
@@ -315,15 +387,15 @@ function pageShell({ depth, title, description, canonical, path, schemas, body, 
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(description)}">
   <meta name="twitter:image" content="${pageOg}">
-  <link rel="icon" href="${prefix}images/logos/richmond-logo.png" type="image/png">
-  <link rel="manifest" href="${prefix}manifest.json">
+  <meta name="twitter:image:alt" content="${esc(pageOgAlt)}">
+  ${headIcons(prefix)}
   <meta name="theme-color" content="#0a0a0a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="${cssHref}">
   <script src="${jsTracker}" defer></script>
-  ${schemas.join("\n  ")}
+  ${allSchemas.join("\n  ")}
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -812,6 +884,7 @@ function robotsTxt() {
 Allow: /
 
 Sitemap: ${SITE}/sitemap.xml
+Sitemap: ${SITE}/sitemap-images.xml
 `;
 }
 
@@ -829,7 +902,7 @@ function sitemapXml() {
     .map(
       (p) => `  <url>
     <loc>${SITE}${p}</loc>
-    <lastmod>2026-08-27</lastmod>
+    <lastmod>2026-08-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>${p === "/" ? "1.0" : "0.8"}</priority>
   </url>`,
@@ -846,16 +919,53 @@ function manifestJson() {
     {
       name: "Richmond Residences",
       short_name: "Richmond",
-      description: "Richmond Residences (Richmond District) by Mira Developments, Al Furjan, Dubai",
+      description: "Richmond Residences by Mira Developments — Al Furjan, Dubai & Mira Coral Bay, RAK",
       start_url: "/",
       display: "standalone",
       background_color: "#0a0a0a",
       theme_color: "#0a0a0a",
-      icons: [{ src: "/images/og-image.webp", sizes: "512x512", type: "image/webp" }],
+      icons: [
+        { src: "/favicon/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { src: "/favicon/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+        { src: "/favicon/android-icon-192x192.png", sizes: "192x192", type: "image/png" },
+        { src: "/favicon/web-app-manifest-512x512.png", sizes: "512x512", type: "image/png" },
+      ],
     },
     null,
     2,
   );
+}
+
+function sitemapImagesXml() {
+  const images = [
+    { page: "/", img: OG_DUBAI, title: OG_DUBAI_ALT },
+    { page: "/price-list/", img: OG_DUBAI, title: "Richmond Residences price list" },
+    { page: "/brochure/", img: OG_DUBAI, title: "Richmond Residences brochure" },
+    { page: "/floor-plans/", img: OG_DUBAI, title: "Richmond Residences floor plans" },
+    { page: "/payment-plan/", img: OG_DUBAI, title: "Richmond Residences payment plan" },
+    { page: "/al-furjan-properties/", img: OG_DUBAI, title: "Properties in Al Furjan" },
+    { page: `${coralBay.CORAL_BAY_PATH}/`, img: OG_CORAL, title: OG_CORAL_ALT },
+    { page: `${coralBay.CORAL_BAY_PATH}/price-list/`, img: OG_CORAL, title: "Mira Coral Bay price list" },
+    { page: `${coralBay.CORAL_BAY_PATH}/brochure/`, img: OG_CORAL, title: "Mira Coral Bay brochure" },
+    { page: `${coralBay.CORAL_BAY_PATH}/floor-plans/`, img: OG_CORAL, title: "Mira Coral Bay floor plans" },
+    { page: `${coralBay.CORAL_BAY_PATH}/payment-plan/`, img: OG_CORAL, title: "Mira Coral Bay payment plan" },
+  ];
+  const urls = images
+    .map(
+      (entry) => `  <url>
+    <loc>${SITE}${entry.page}</loc>
+    <image:image>
+      <image:loc>${entry.img}</image:loc>
+      <image:title>${esc(entry.title)}</image:title>
+    </image:image>
+  </url>`,
+    )
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+${urls}
+</urlset>`;
 }
 
 const coralBay = require("./coral-bay").register({
@@ -872,6 +982,9 @@ const coralBay = require("./coral-bay").register({
   faqBlock,
   leadForm,
   OG_CORAL,
+  OG_CORAL_ALT,
+  OG_CORAL_W,
+  OG_CORAL_H,
 });
 
 const coralPages = coralBay.pages();
@@ -889,6 +1002,7 @@ writeFile("richmond-residences-mira-coral-bay/payment-plan/index.html", coralPag
 writeFile("richmond-residences-mira-coral-bay/price-list/index.html", coralPages.priceList);
 writeFile("robots.txt", robotsTxt());
 writeFile("sitemap.xml", sitemapXml());
+writeFile("sitemap-images.xml", sitemapImagesXml());
 writeFile("manifest.json", manifestJson());
 
 console.log("Done — Richmond Residences site generated.");

@@ -44,7 +44,17 @@ function register(deps) {
     faqBlock,
     leadForm,
     OG_CORAL,
+    OG_CORAL_ALT,
+    OG_CORAL_W,
+    OG_CORAL_H,
   } = deps;
+
+  const ogOpts = {
+    ogImage: OG_CORAL,
+    ogImageAlt: OG_CORAL_ALT,
+    ogImageWidth: OG_CORAL_W,
+    ogImageHeight: OG_CORAL_H,
+  };
 
   function img(depth, file) {
     return `${assetPrefix(depth)}images/coral-bay/${file}`;
@@ -417,7 +427,7 @@ function register(deps) {
       schemas,
       body,
       geo: CORAL_BAY_GEO,
-      ogImage: OG_CORAL,
+      ...ogOpts,
     });
   }
 
@@ -453,7 +463,7 @@ function register(deps) {
     </section>
     ${coralLeadForm(depth, { path: `${CORAL_BAY_PATH}/brochure/`, defaultInterest: "Brochure & Project Details", heading: "Request Mira Coral Bay Brochure", button: "Request Brochure" })}
   `;
-    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/brochure/`, path: `${CORAL_BAY_PATH}/brochure/`, schemas, body, geo: CORAL_BAY_GEO, ogImage: OG_CORAL });
+    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/brochure/`, path: `${CORAL_BAY_PATH}/brochure/`, schemas, body, geo: CORAL_BAY_GEO, ...ogOpts });
   }
 
   function coralFloorPlansPage() {
@@ -486,7 +496,7 @@ function register(deps) {
     <p class="section-note">Building: G + 8 + Roof. Layout drawings provided on request for current EOI inventory at Mira Coral Bay.</p></div></section>
     ${coralLeadForm(depth, { path: `${CORAL_BAY_PATH}/floor-plans/`, defaultInterest: "Floor Plans", heading: "Request Mira Coral Bay Floor Plans", button: "Request Floor Plans" })}
   `;
-    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/floor-plans/`, path: `${CORAL_BAY_PATH}/floor-plans/`, schemas, body, geo: CORAL_BAY_GEO, ogImage: OG_CORAL });
+    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/floor-plans/`, path: `${CORAL_BAY_PATH}/floor-plans/`, schemas, body, geo: CORAL_BAY_GEO, ...ogOpts });
   }
 
   function coralPaymentPlanPage() {
@@ -510,7 +520,7 @@ function register(deps) {
     <p>${esc(HANDOVER_NOTE)} See the <a href="../price-list/">Mira Coral Bay price list</a> for starting prices.</p></div></section>
     ${coralLeadForm(depth, { path: `${CORAL_BAY_PATH}/payment-plan/`, defaultInterest: "Payment Plan", heading: "Get Payment Schedule Details", button: "Request Payment Plan" })}
   `;
-    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/payment-plan/`, path: `${CORAL_BAY_PATH}/payment-plan/`, schemas, body, geo: CORAL_BAY_GEO, ogImage: OG_CORAL });
+    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/payment-plan/`, path: `${CORAL_BAY_PATH}/payment-plan/`, schemas, body, geo: CORAL_BAY_GEO, ...ogOpts });
   }
 
   function coralPriceListPage() {
@@ -538,7 +548,7 @@ function register(deps) {
     </div></section>
     ${coralLeadForm(depth, { path: `${CORAL_BAY_PATH}/price-list/`, defaultInterest: "Price List & Availability", heading: "Request Current Availability", button: "Get Price List" })}
   `;
-    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/price-list/`, path: `${CORAL_BAY_PATH}/price-list/`, schemas, body, geo: CORAL_BAY_GEO, ogImage: OG_CORAL });
+    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/price-list/`, path: `${CORAL_BAY_PATH}/price-list/`, schemas, body, geo: CORAL_BAY_GEO, ...ogOpts });
   }
 
   function flagshipSection() {

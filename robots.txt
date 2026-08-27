@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://richmondresidences.ae/sitemap.xml
+Sitemap: https://richmondresidences.ae/sitemap-images.xml
