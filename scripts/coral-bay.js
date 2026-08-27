@@ -99,30 +99,68 @@ function register(deps) {
 
   function paymentPlanDetail() {
     return `
-    <div class="payment-plan-detail">
-      <h3>Pre-Handover — 50%</h3>
-      <ul class="plan-list">
-        <li>10% down payment on booking</li>
-        <li>10% at 1 month after booking</li>
-        <li>5% at 6 months from booking</li>
-        <li>5% at 12 months from booking</li>
-        <li>5% at 18 months from booking</li>
-        <li>5% at 24 months from booking</li>
-        <li>5% at 30 months from booking</li>
-        <li>5% at handover</li>
+    <div class="plan-card">
+      <div class="plan-card-head">
+        <h3>Payment plan</h3>
+        <p class="plan-5050">50/50 — 50% pre-handover · 50% post-handover</p>
+      </div>
+
+      <div class="plan-bar" role="img" aria-label="Payment plan: 10% on booking, 35% during construction, 5% on handover, 50% post-handover">
+        <div class="plan-bar-seg seg-booking" style="width:10%"><span class="visually-hidden">On booking 10%</span></div>
+        <div class="plan-bar-seg seg-construction" style="width:35%"><span class="visually-hidden">During construction 35%</span></div>
+        <div class="plan-bar-seg seg-handover" style="width:5%"><span class="visually-hidden">Upon handover 5%</span></div>
+        <div class="plan-bar-seg seg-post" style="width:50%"><span class="visually-hidden">Post-handover 50%</span></div>
+      </div>
+      <div class="plan-bar-labels" aria-hidden="true">
+        <span style="width:10%">10%</span>
+        <span style="width:35%">35%</span>
+        <span style="width:5%">5%</span>
+        <span style="width:50%">50%</span>
+      </div>
+
+      <ul class="plan-breakdown">
+        <li class="plan-row">
+          <span class="plan-row-label">On booking</span>
+          <span class="plan-row-pct">10%</span>
+        </li>
+        <li class="plan-row plan-row-group">
+          <details class="plan-details" open>
+            <summary class="plan-summary">
+              <span class="plan-row-label">During construction</span>
+              <span class="plan-row-pct">35%</span>
+            </summary>
+            <p class="plan-sub-hint">2 payment groups</p>
+            <ul class="plan-sub">
+              <li><span>1 month from booking</span><strong>10%</strong></li>
+              <li><span>5% every 6 months (at 6, 12, 18, 24 &amp; 30 months)</span><strong>25%</strong></li>
+            </ul>
+          </details>
+        </li>
+        <li class="plan-row">
+          <span class="plan-row-label">Upon handover</span>
+          <span class="plan-row-pct">5%</span>
+        </li>
+        <li class="plan-row plan-row-group">
+          <details class="plan-details" open>
+            <summary class="plan-summary">
+              <span class="plan-row-label">Within 36 months post-handover <span class="plan-row-note">(5% every 4 months)</span></span>
+              <span class="plan-row-pct">50%</span>
+            </summary>
+            <ul class="plan-sub">
+              <li><span>4 months after handover</span><strong>5%</strong></li>
+              <li><span>8 months after handover</span><strong>5%</strong></li>
+              <li><span>12 months after handover</span><strong>5%</strong></li>
+              <li><span>16 months after handover</span><strong>5%</strong></li>
+              <li><span>20 months after handover</span><strong>10%</strong></li>
+              <li><span>24 months after handover</span><strong>5%</strong></li>
+              <li><span>28 months after handover</span><strong>5%</strong></li>
+              <li><span>32 months after handover</span><strong>5%</strong></li>
+              <li><span>36 months after handover</span><strong>5%</strong></li>
+            </ul>
+          </details>
+        </li>
       </ul>
-      <h3>Post-Handover — 50% (over 3 years)</h3>
-      <ul class="plan-list">
-        <li>5% at 4 months after handover</li>
-        <li>5% at 8 months after handover</li>
-        <li>5% at 12 months after handover</li>
-        <li>5% at 16 months after handover</li>
-        <li>10% at 20 months after handover</li>
-        <li>5% at 24 months after handover</li>
-        <li>5% at 28 months after handover</li>
-        <li>5% at 32 months after handover</li>
-        <li>5% at 36 months after handover</li>
-      </ul>
+
       <p class="verify-note"><strong>Note:</strong> ${esc(PAYMENT_NOTE)}</p>
     </div>`;
   }
@@ -146,7 +184,7 @@ function register(deps) {
     },
     {
       q: "What is the payment plan?",
-      a: `The official Mira brochure sets out a 50/50 structure: 50% pre-handover (10% down, 10% at 1 month, 5% at 6/12/18/24/30 months, 5% at handover) and 50% post-handover over 3 years (5% at 4/8/12/16 months, 10% at 20 months, 5% at 24/28/32/36 months). ${PAYMENT_NOTE}`,
+      a: `Richmond Residences Mira Coral Bay follows a 50/50 plan: 50% pre-handover (10% on booking, 35% during construction — 10% at 1 month plus 25% in 5% instalments every 6 months — and 5% upon handover) and 50% post-handover within 36 months (5% every 4 months, with 10% at 20 months per the official Mira brochure). ${PAYMENT_NOTE}`,
     },
     {
       q: "When is the handover date?",
@@ -357,7 +395,8 @@ function register(deps) {
       <div class="container stack">
         <div class="section-head">
           <p class="eyebrow">Payment plan</p>
-          <h2>50/50 Structure — Mira Coral Bay Official Brochure</h2>
+          <h2>50/50 Plan — Richmond Residences, Ras Al Khaimah</h2>
+          <p>Official Mira brochure structure for John Richmond Residences at Mira Coral Bay.</p>
         </div>
         ${paymentPlanDetail()}
         <p class="verify-note">${esc(HANDOVER_NOTE)} Escrow is confirmed in place per the August 2026 source snapshot.</p>
@@ -465,9 +504,9 @@ function register(deps) {
       ),
     ];
     const body = `
-    ${subpageHero("Mira Coral Bay Payment Plan", "Official 50/50 structure for Richmond Residences, Ras Al Khaimah.")}
+    ${subpageHero("Mira Coral Bay Payment Plan", "50/50 payment structure for Richmond Residences, Ras Al Khaimah — pre-handover and post-handover breakdown.")}
     <p class="back-link container"><a href="../">John Richmond Residences at Mira Coral Bay</a></p>
-    <section class="section"><div class="container stack">${paymentPlanDetail()}
+    <section class="section"><div class="container stack plan-page-wrap">${paymentPlanDetail()}
     <p>${esc(HANDOVER_NOTE)} See the <a href="../price-list/">Mira Coral Bay price list</a> for starting prices.</p></div></section>
     ${coralLeadForm(depth, { path: `${CORAL_BAY_PATH}/payment-plan/`, defaultInterest: "Payment Plan", heading: "Get Payment Schedule Details", button: "Request Payment Plan" })}
   `;

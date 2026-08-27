@@ -6,7 +6,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const SITE = "https://richmondresidences.ae";
-const ASSET_VERSION = "20260828a";
+const ASSET_VERSION = "20260828b";
 const OG_CORAL = `${SITE}/images/coral-bay/og-image.webp`;
 
 const GEO = {

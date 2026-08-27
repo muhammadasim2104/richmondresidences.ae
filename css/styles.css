@@ -668,6 +668,162 @@ h1, h2, h3 {
   font-size: 0.95rem;
 }
 
+/* Coral Bay payment plan card */
+.plan-card {
+  background: var(--white);
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem 1.75rem;
+  max-width: 42rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.plan-page-wrap .plan-card { margin-inline: auto; }
+
+.plan-card-head h3 {
+  font-family: var(--font-sans);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--black);
+  margin: 0 0 0.25rem;
+}
+
+.plan-5050 {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.plan-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #eee;
+}
+
+.plan-bar-seg { height: 100%; min-width: 2px; }
+
+.seg-booking { background: #34d399; }
+.seg-construction { background: #6366f1; }
+.seg-handover { background: #d1d5db; }
+.seg-post { background: #34d399; }
+
+.plan-bar-labels {
+  display: flex;
+  margin: 0.5rem 0 1.25rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--black);
+}
+
+.plan-bar-labels span {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.plan-breakdown {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #eee;
+}
+
+.plan-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.plan-row-group { display: block; padding: 0; border-bottom: 1px solid #f0f0f0; }
+
+.plan-row-label {
+  font-weight: 600;
+  color: var(--black);
+  font-size: 0.95rem;
+}
+
+.plan-row-note {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.plan-row-pct {
+  font-weight: 700;
+  color: var(--black);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.plan-details { padding: 0.85rem 0; }
+
+.plan-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.plan-summary::-webkit-details-marker { display: none; }
+
+.plan-summary::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--muted);
+  margin-right: 0.5rem;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.plan-details[open] .plan-summary::before { transform: rotate(180deg); }
+
+.plan-summary .plan-row-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.plan-sub-hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0.35rem 0 0.5rem 1.25rem;
+}
+
+.plan-sub {
+  list-style: none;
+  margin: 0 0 0.25rem 1.25rem;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.plan-sub li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+  padding: 0.2rem 0;
+}
+
+.plan-sub li strong {
+  font-weight: 600;
+  color: var(--black);
+  flex-shrink: 0;
+}
+
 .payment-plan-detail h3 { font-size: 1.1rem; margin: 1.25rem 0 0.5rem; color: var(--black); }
 
 .verify-note {
