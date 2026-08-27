@@ -2,6 +2,18 @@
 
 Independent marketing site for **Richmond Residences** (officially **Richmond District**) by Mira Developments in Al Furjan, Dubai.
 
+## Environment variables
+
+Copy shared keys from an existing property site (default: `al-ghadeer-parks`):
+
+```bash
+./scripts/sync-vercel-env.sh al-ghadeer-parks
+npx vercel env pull .env.local --environment=development
+npx vercel --prod
+```
+
+Shared stack: Supabase, Resend, Upsides ingest — same as Al Ghadeer Parks / Valia / Sei Saadiyat.
+
 ## Local development
 
 ```bash
