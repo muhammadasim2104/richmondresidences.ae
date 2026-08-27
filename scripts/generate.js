@@ -6,7 +6,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const SITE = "https://richmondresidences.ae";
-const ASSET_VERSION = "20260828c";
+const ASSET_VERSION = "20260828d";
 
 const GEO = {
   region: "AE-DU",
@@ -159,6 +159,31 @@ function pricingTable() {
   </table></div>`;
 }
 
+function heroSection({ bgImage, eyebrow, title, subtitle, stats, exploreHref, exploreLabel }) {
+  const statsHtml = (stats || [])
+    .map(
+      (s) =>
+        `<div><span class="stat-label">${esc(s.label)}</span><span class="stat-value">${s.value}</span></div>`,
+    )
+    .join("\n            ");
+  return `
+    <section class="hero">
+      <div class="hero-bg" style="background-image:url('${bgImage}')"></div>
+      <div class="hero-inner container">
+        <div class="hero-copy">
+          ${eyebrow ? `<p class="eyebrow eyebrow-light">${esc(eyebrow)}</p>` : ""}
+          <h1>${esc(title)}</h1>
+          ${subtitle ? `<p class="hero-sub">${subtitle}</p>` : ""}
+          ${stats?.length ? `<div class="hero-stats">${statsHtml}</div>` : ""}
+          <div class="hero-cta">
+            <a class="btn btn-accent" href="${esc(exploreHref || "#overview")}">${esc(exploreLabel || "Explore")}</a>
+            <a class="btn btn-outline-light" href="#register" data-open-register>Register Interest</a>
+          </div>
+        </div>
+      </div>
+    </section>`;
+}
+
 function leadForm(depth, opts = {}) {
   const prefix = assetPrefix(depth);
   const sourcePage = opts.sourcePage || SITE + (opts.path || "/");
@@ -260,7 +285,7 @@ function nav(depth) {
               : `${root}${link.href.replace(/^\//, "")}`;
             return `<a href="${href}">${esc(link.label)}</a>`;
           }).join("\n          ")}
-          <a class="btn btn-accent btn-sm" href="${root}#register" data-open-register>Register</a>
+          <a class="btn btn-accent btn-sm" href="${root}#register" data-open-register>Register your interest</a>
         </div>
       </nav>
     </header>`;
@@ -268,19 +293,36 @@ function nav(depth) {
 
 function footer(depth) {
   const prefix = assetPrefix(depth);
+  const dubaiLinks = FOOTER_LINKS.filter((l) => !l.href.includes("coral-bay"));
+  const coralLink = FOOTER_LINKS.find((l) => l.href.includes("coral-bay"));
   return `
     <footer class="site-footer">
       <div class="container footer-grid">
         <div>
-          <img src="${prefix}images/logos/richmond-logo.png" alt="${esc(LOGO_ALT)}" class="footer-logo" width="140" height="42">
+          <img src="${prefix}images/logos/richmond-logo.png" alt="${esc(LOGO_ALT)}" class="footer-logo" width="180" height="54">
           <p class="footer-tag">Richmond District by Mira Developments — Al Furjan, Dubai &amp; Mira Coral Bay, RAK</p>
         </div>
-        <nav class="footer-links" aria-label="Footer">
-          ${FOOTER_LINKS.map(
-            (link) =>
-              `<a href="${prefix}${link.href.replace(/^\//, "")}">${esc(link.label)}</a>`,
-          ).join("\n          ")}
-        </nav>
+        <div>
+          <p class="footer-col-title">Al Furjan, Dubai</p>
+          <nav class="footer-links" aria-label="Dubai project">
+            ${dubaiLinks
+              .map(
+                (link) =>
+                  `<a href="${prefix}${link.href.replace(/^\//, "")}">${esc(link.label)}</a>`,
+              )
+              .join("\n            ")}
+          </nav>
+        </div>
+        <div>
+          <p class="footer-col-title">Resources</p>
+          <nav class="footer-links" aria-label="Resources">
+            <a href="${prefix}brochure/">Brochure</a>
+            <a href="${prefix}floor-plans/">Floor Plans</a>
+            <a href="${prefix}price-list/">Price List</a>
+            <a href="${prefix}payment-plan/">Payment Plan</a>
+            ${coralLink ? `<a href="${prefix}${coralLink.href.replace(/^\//, "")}">${esc(coralLink.label)}</a>` : ""}
+          </nav>
+        </div>
       </div>
       <div class="container">
         <p class="disclaimer">${esc(DISCLAIMER)}</p>
@@ -389,10 +431,10 @@ function pageShell({
   <meta name="twitter:image" content="${pageOg}">
   <meta name="twitter:image:alt" content="${esc(pageOgAlt)}">
   ${headIcons(prefix)}
-  <meta name="theme-color" content="#0a0a0a">
+  <meta name="theme-color" content="#2d4a2d">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="${cssHref}">
   <script src="${jsTracker}" defer></script>
   ${allSchemas.join("\n  ")}
@@ -402,6 +444,9 @@ function pageShell({
   ${nav(depth)}
   <main id="main">${body}</main>
   ${footer(depth)}
+  <div class="float-register" id="float-register" aria-hidden="true">
+    <a class="btn btn-accent btn-sm" href="#register" data-open-register>Register your interest</a>
+  </div>
   <script src="${jsMain}" defer></script>
 </body>
 </html>`;
@@ -505,43 +550,20 @@ function homePage() {
   ];
 
   const body = `
-    <section class="hero section">
-      <div class="hero-bg" style="background-image:url('./images/hero/hero-night.webp')"></div>
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow eyebrow-light">New Launch at Al Furjan</p>
-          <h1>Richmond Residences by Mira Developments — Al Furjan, Dubai</h1>
-          <p class="hero-sub">Known officially as <strong>Richmond District</strong>, this is Dubai's first John Richmond-branded residential community — studios and 1-2 bedroom apartments from <strong>AED 943,500</strong>.</p>
-          <div class="hero-stats">
-            <div><span class="stat-label">From</span><span class="stat-value">AED 943,500</span></div>
-            <div><span class="stat-label">Handover</span><span class="stat-value">Q1 2029</span></div>
-            <div><span class="stat-label">Payment</span><span class="stat-value">45/5/50</span></div>
-          </div>
-        </div>
-        <div class="hero-form-card">
-          <h2>Register Your Interest</h2>
-          <p>Request the Richmond District brochure, price list, and payment plan.</p>
-          <form class="form form-compact" action="./api/enquire" method="post" novalidate>
-            <input type="hidden" name="source_page" value="${SITE}/">
-            <input type="hidden" name="project_slug" value="richmond-residences">
-            <div class="form-alert" role="status" aria-live="polite" hidden></div>
-            <label class="field"><span>Name</span><input type="text" name="name" required maxlength="200"></label>
-            <label class="field"><span>Email</span><input type="email" name="email" required maxlength="200"></label>
-            <div class="field phone-field"><span>Phone</span><div class="phone-row">
-              <select name="country_code"><option value="+971" selected>+971</option><option value="+44">+44</option><option value="+1">+1</option></select>
-              <input type="tel" name="phone" required maxlength="30">
-            </div></div>
-            <label class="field"><span>Interest</span><select name="interest" required>
-              <option value="">Select</option>
-              ${INTEREST_OPTIONS.map((o) => `<option value="${esc(o)}">${esc(o)}</option>`).join("")}
-            </select></label>
-            <label class="field visually-hidden"><input type="text" name="website" tabindex="-1"></label>
-            <input type="hidden" name="tu_hp_confirm" value="">
-            <button type="submit" class="btn btn-accent btn-block">Register Interest</button>
-          </form>
-        </div>
-      </div>
-    </section>
+    ${heroSection({
+      bgImage: "./images/hero/hero-night.webp",
+      eyebrow: "New Launch at Al Furjan",
+      title: "Richmond Residences by Mira Developments — Al Furjan, Dubai",
+      subtitle:
+        "Known officially as <strong>Richmond District</strong>, this is Dubai's first John Richmond-branded residential community — studios and 1-2 bedroom apartments from <strong>AED 943,500</strong>.",
+      stats: [
+        { label: "From", value: "AED 943,500" },
+        { label: "Handover", value: "Q1 2029" },
+        { label: "Payment", value: "45/5/50" },
+      ],
+      exploreHref: "#overview",
+      exploreLabel: "Explore Richmond District",
+    })}
 
     <section class="section" id="overview">
       <div class="container split-grid">
@@ -596,12 +618,12 @@ function homePage() {
       </div>
     </section>
 
-    <section class="section section-dark" id="amenities">
+    <section class="section" id="amenities">
       <div class="container">
-        <div class="section-head">
-          <p class="eyebrow eyebrow-light">Amenities</p>
+        <div class="section-head section-head-center">
+          <p class="eyebrow">Amenities</p>
           <h2>Lifestyle Podium at Richmond Residences</h2>
-          <p class="text-light">The shared podium connects all towers with resort-grade facilities and everyday conveniences on site.</p>
+          <p>The shared podium connects all towers with resort-grade facilities and everyday conveniences on site.</p>
         </div>
         <ul class="amenity-grid">
           <li>Three resort-style pools</li>
@@ -922,8 +944,8 @@ function manifestJson() {
       description: "Richmond Residences by Mira Developments — Al Furjan, Dubai & Mira Coral Bay, RAK",
       start_url: "/",
       display: "standalone",
-      background_color: "#0a0a0a",
-      theme_color: "#0a0a0a",
+      background_color: "#faf9f6",
+      theme_color: "#2d4a2d",
       icons: [
         { src: "/favicon/favicon-32x32.png", sizes: "32x32", type: "image/png" },
         { src: "/favicon/favicon-96x96.png", sizes: "96x96", type: "image/png" },
@@ -981,6 +1003,7 @@ const coralBay = require("./coral-bay").register({
   backLink,
   faqBlock,
   leadForm,
+  heroSection,
   OG_CORAL,
   OG_CORAL_ALT,
   OG_CORAL_W,

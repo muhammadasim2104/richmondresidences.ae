@@ -43,6 +43,7 @@ function register(deps) {
     backLink,
     faqBlock,
     leadForm,
+    heroSection,
     OG_CORAL,
     OG_CORAL_ALT,
     OG_CORAL_W,
@@ -241,48 +242,20 @@ function register(deps) {
     ];
 
     const body = `
-    <section class="hero section">
-      <div class="hero-bg" style="background-image:url('${img(depth, "hero/hero-1.webp")}')"></div>
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow eyebrow-light">Richmond Residences, Ras Al Khaimah</p>
-          <h1>John Richmond Residences at Mira Coral Bay — Ras Al Khaimah</h1>
-          <p class="hero-sub">Waterfront branded homes by Mira Developments and John Richmond at <strong>Mira Coral Bay, Al Mairid</strong> — studios to 3-bed duplexes from <strong>AED 550,000</strong>. Expression of Interest open; confirm current sale status before booking.</p>
-          <div class="hero-stats">
-            <div><span class="stat-label">From</span><span class="stat-value">AED 550,000</span></div>
-            <div><span class="stat-label">Homes</span><span class="stat-value">293</span></div>
-            <div><span class="stat-label">Status</span><span class="stat-value">Under construction</span></div>
-          </div>
-        </div>
-        <div class="hero-form-card">
-          <h2>Register Your Interest</h2>
-          <p>Request Mira Coral Bay brochure, floor plans, and price list for Richmond Residences, RAK.</p>
-          <form class="form form-compact" action="${assetPrefix(depth)}api/enquire" method="post" novalidate>
-            <input type="hidden" name="source_page" value="${SITE}${CORAL_BAY_PATH}/">
-            <input type="hidden" name="project_slug" value="${CORAL_BAY_SLUG}">
-            <input type="hidden" name="project_name" value="${CORAL_BAY_NAME}">
-            <div class="form-alert" role="status" aria-live="polite" hidden></div>
-            <label class="field"><span>Name</span><input type="text" name="name" required maxlength="200"></label>
-            <label class="field"><span>Email</span><input type="email" name="email" required maxlength="200"></label>
-            <div class="field phone-field"><span>Phone</span><div class="phone-row">
-              <select name="country_code"><option value="+971" selected>+971</option><option value="+44">+44</option><option value="+1">+1</option></select>
-              <input type="tel" name="phone" required maxlength="30">
-            </div></div>
-            <label class="field"><span>Interest</span><select name="interest" required>
-              <option value="">Select</option>
-              <option value="Brochure & Project Details">Brochure &amp; Project Details</option>
-              <option value="Floor Plans">Floor Plans</option>
-              <option value="Price List & Availability">Price List &amp; Availability</option>
-              <option value="Payment Plan">Payment Plan</option>
-              <option value="Investment Opportunity">Investment Opportunity</option>
-            </select></label>
-            <label class="field visually-hidden"><input type="text" name="website" tabindex="-1"></label>
-            <input type="hidden" name="tu_hp_confirm" value="">
-            <button type="submit" class="btn btn-accent btn-block">Register Interest</button>
-          </form>
-        </div>
-      </div>
-    </section>
+    ${heroSection({
+      bgImage: img(depth, "hero/hero-1.webp"),
+      eyebrow: "Richmond Residences, Ras Al Khaimah",
+      title: "John Richmond Residences at Mira Coral Bay — Ras Al Khaimah",
+      subtitle:
+        "Waterfront branded homes by Mira Developments and John Richmond at <strong>Mira Coral Bay, Al Mairid</strong> — studios to 3-bed duplexes from <strong>AED 550,000</strong>. Expression of Interest open; confirm current sale status before booking.",
+      stats: [
+        { label: "From", value: "AED 550,000" },
+        { label: "Homes", value: "293" },
+        { label: "Status", value: "Under construction" },
+      ],
+      exploreHref: "#overview",
+      exploreLabel: "Explore Mira Coral Bay",
+    })}
 
     <section class="section" id="overview">
       <div class="container split-grid">
@@ -337,10 +310,10 @@ function register(deps) {
       </div>
     </section>
 
-    <section class="section section-dark" id="amenities">
+    <section class="section" id="amenities">
       <div class="container">
-        <div class="section-head">
-          <p class="eyebrow eyebrow-light">Amenities</p>
+        <div class="section-head section-head-center">
+          <p class="eyebrow">Amenities</p>
           <h2>Waterfront Lifestyle at Mira Coral Bay, RAK</h2>
         </div>
         <ul class="amenity-grid">

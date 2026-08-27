@@ -96,6 +96,11 @@ const server = http.createServer(async (req, res) => {
   }
 
   try {
+    const ext = path.extname(pathname).toLowerCase();
+    if (ext && ext !== ".html") {
+      serveStatic(req, res, pathname);
+      return;
+    }
     const normalized = pathname.endsWith("/") ? pathname : `${pathname}/`;
     const target = pathname === "/" ? "/index.html" : normalized.endsWith("/") ? `${normalized}index.html` : pathname;
     serveStatic(req, res, target);

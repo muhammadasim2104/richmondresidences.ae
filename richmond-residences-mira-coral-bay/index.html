@@ -38,12 +38,12 @@
   <link rel="icon" type="image/png" sizes="96x96" href="../favicon/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-icon-180x180.png">
   <link rel="manifest" href="../manifest.json">
-  <meta name="theme-color" content="#0a0a0a">
+  <meta name="theme-color" content="#2d4a2d">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/styles.css?v=20260828c">
-  <script src="../js/tracker.js?v=20260828c" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css?v=20260828d">
+  <script src="../js/tracker.js?v=20260828d" defer></script>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -252,50 +252,26 @@
           <a href="../#amenities">Amenities</a>
           <a href="../#faqs">FAQs</a>
           <a href="../#flagship-projects">RAK</a>
-          <a class="btn btn-accent btn-sm" href="../#register" data-open-register>Register</a>
+          <a class="btn btn-accent btn-sm" href="../#register" data-open-register>Register your interest</a>
         </div>
       </nav>
     </header>
   <main id="main">
-    <section class="hero section">
+    
+    <section class="hero">
       <div class="hero-bg" style="background-image:url('../images/coral-bay/hero/hero-1.webp')"></div>
-      <div class="container hero-grid">
+      <div class="hero-inner container">
         <div class="hero-copy">
           <p class="eyebrow eyebrow-light">Richmond Residences, Ras Al Khaimah</p>
           <h1>John Richmond Residences at Mira Coral Bay — Ras Al Khaimah</h1>
           <p class="hero-sub">Waterfront branded homes by Mira Developments and John Richmond at <strong>Mira Coral Bay, Al Mairid</strong> — studios to 3-bed duplexes from <strong>AED 550,000</strong>. Expression of Interest open; confirm current sale status before booking.</p>
-          <div class="hero-stats">
-            <div><span class="stat-label">From</span><span class="stat-value">AED 550,000</span></div>
+          <div class="hero-stats"><div><span class="stat-label">From</span><span class="stat-value">AED 550,000</span></div>
             <div><span class="stat-label">Homes</span><span class="stat-value">293</span></div>
-            <div><span class="stat-label">Status</span><span class="stat-value">Under construction</span></div>
+            <div><span class="stat-label">Status</span><span class="stat-value">Under construction</span></div></div>
+          <div class="hero-cta">
+            <a class="btn btn-accent" href="#overview">Explore Mira Coral Bay</a>
+            <a class="btn btn-outline-light" href="#register" data-open-register>Register Interest</a>
           </div>
-        </div>
-        <div class="hero-form-card">
-          <h2>Register Your Interest</h2>
-          <p>Request Mira Coral Bay brochure, floor plans, and price list for Richmond Residences, RAK.</p>
-          <form class="form form-compact" action="../api/enquire" method="post" novalidate>
-            <input type="hidden" name="source_page" value="https://richmondresidences.ae/richmond-residences-mira-coral-bay/">
-            <input type="hidden" name="project_slug" value="richmond-residences-coral-bay">
-            <input type="hidden" name="project_name" value="John Richmond Residences at Mira Coral Bay">
-            <div class="form-alert" role="status" aria-live="polite" hidden></div>
-            <label class="field"><span>Name</span><input type="text" name="name" required maxlength="200"></label>
-            <label class="field"><span>Email</span><input type="email" name="email" required maxlength="200"></label>
-            <div class="field phone-field"><span>Phone</span><div class="phone-row">
-              <select name="country_code"><option value="+971" selected>+971</option><option value="+44">+44</option><option value="+1">+1</option></select>
-              <input type="tel" name="phone" required maxlength="30">
-            </div></div>
-            <label class="field"><span>Interest</span><select name="interest" required>
-              <option value="">Select</option>
-              <option value="Brochure & Project Details">Brochure &amp; Project Details</option>
-              <option value="Floor Plans">Floor Plans</option>
-              <option value="Price List & Availability">Price List &amp; Availability</option>
-              <option value="Payment Plan">Payment Plan</option>
-              <option value="Investment Opportunity">Investment Opportunity</option>
-            </select></label>
-            <label class="field visually-hidden"><input type="text" name="website" tabindex="-1"></label>
-            <input type="hidden" name="tu_hp_confirm" value="">
-            <button type="submit" class="btn btn-accent btn-block">Register Interest</button>
-          </form>
         </div>
       </div>
     </section>
@@ -391,10 +367,10 @@
       </div>
     </section>
 
-    <section class="section section-dark" id="amenities">
+    <section class="section" id="amenities">
       <div class="container">
-        <div class="section-head">
-          <p class="eyebrow eyebrow-light">Amenities</p>
+        <div class="section-head section-head-center">
+          <p class="eyebrow">Amenities</p>
           <h2>Waterfront Lifestyle at Mira Coral Bay, RAK</h2>
         </div>
         <ul class="amenity-grid">
@@ -652,18 +628,30 @@
     <footer class="site-footer">
       <div class="container footer-grid">
         <div>
-          <img src="../images/logos/richmond-logo.png" alt="John Richmond District — Richmond Residences" class="footer-logo" width="140" height="42">
+          <img src="../images/logos/richmond-logo.png" alt="John Richmond District — Richmond Residences" class="footer-logo" width="180" height="54">
           <p class="footer-tag">Richmond District by Mira Developments — Al Furjan, Dubai &amp; Mira Coral Bay, RAK</p>
         </div>
-        <nav class="footer-links" aria-label="Footer">
-          <a href="../">Richmond Residences</a>
-          <a href="../brochure/">Brochure</a>
-          <a href="../floor-plans/">Floor Plans</a>
-          <a href="../price-list/">Price List</a>
-          <a href="../payment-plan/">Payment Plan</a>
-          <a href="../al-furjan-properties/">Properties in Al Furjan</a>
-          <a href="../richmond-residences-mira-coral-bay/">Mira Coral Bay, RAK</a>
-        </nav>
+        <div>
+          <p class="footer-col-title">Al Furjan, Dubai</p>
+          <nav class="footer-links" aria-label="Dubai project">
+            <a href="../">Richmond Residences</a>
+            <a href="../brochure/">Brochure</a>
+            <a href="../floor-plans/">Floor Plans</a>
+            <a href="../price-list/">Price List</a>
+            <a href="../payment-plan/">Payment Plan</a>
+            <a href="../al-furjan-properties/">Properties in Al Furjan</a>
+          </nav>
+        </div>
+        <div>
+          <p class="footer-col-title">Resources</p>
+          <nav class="footer-links" aria-label="Resources">
+            <a href="../brochure/">Brochure</a>
+            <a href="../floor-plans/">Floor Plans</a>
+            <a href="../price-list/">Price List</a>
+            <a href="../payment-plan/">Payment Plan</a>
+            <a href="../richmond-residences-mira-coral-bay/">Mira Coral Bay, RAK</a>
+          </nav>
+        </div>
       </div>
       <div class="container">
         <p class="disclaimer">richmondresidences.ae is an independent marketing site for Richmond Residences developments by Mira Developments, including Al Furjan, Dubai and Mira Coral Bay, Ras Al Khaimah. This is not the official Mira Developments website. Project details, pricing, and availability are subject to change and should be verified with Mira Developments or an authorized representative.</p>
@@ -671,6 +659,9 @@
         <p class="footer-copy">&copy; 2026 richmondresidences.ae. All rights reserved.</p>
       </div>
     </footer>
-  <script src="../js/main.js?v=20260828c" defer></script>
+  <div class="float-register" id="float-register" aria-hidden="true">
+    <a class="btn btn-accent btn-sm" href="#register" data-open-register>Register your interest</a>
+  </div>
+  <script src="../js/main.js?v=20260828d" defer></script>
 </body>
 </html>

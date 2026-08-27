@@ -4,8 +4,8 @@
   "description": "Richmond Residences by Mira Developments — Al Furjan, Dubai & Mira Coral Bay, RAK",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "background_color": "#faf9f6",
+  "theme_color": "#2d4a2d",
   "icons": [
     {
       "src": "/favicon/favicon-32x32.png",

@@ -118,4 +118,24 @@
   }
 
   forms.forEach(setupLeadForm);
+
+  const floatRegister = document.getElementById("float-register");
+  const footer = document.querySelector(".site-footer");
+
+  if (floatRegister) {
+    const showAfter = 120;
+
+    function updateFloatRegister() {
+      const scrolled = window.scrollY > showAfter;
+      const footerVisible =
+        footer &&
+        footer.getBoundingClientRect().top < window.innerHeight - 64;
+      const visible = scrolled && !footerVisible;
+      floatRegister.classList.toggle("is-visible", visible);
+      floatRegister.setAttribute("aria-hidden", String(!visible));
+    }
+
+    window.addEventListener("scroll", updateFloatRegister, { passive: true });
+    updateFloatRegister();
+  }
 })();
