@@ -141,9 +141,14 @@ h1, h2, h3 {
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
   text-decoration: none;
-  color: var(--cream);
+}
+
+.nav-logo {
+  height: 44px;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
 }
 
 .brand-mark {
@@ -565,6 +570,14 @@ h1, h2, h3 {
 
 @media (min-width: 768px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.footer-logo {
+  height: 40px;
+  width: auto;
+  max-width: 160px;
+  margin-bottom: 0.75rem;
+  object-fit: contain;
 }
 
 .footer-brand {

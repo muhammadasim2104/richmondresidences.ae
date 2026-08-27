@@ -16,7 +16,9 @@ const GEO = {
   lng: 55.1458,
 };
 
-const OG_IMAGE = `${SITE}/images/og-image.webp`;
+const LOGO = `${SITE}/images/logos/richmond-logo.png`;
+const LOGO_ALT = "John Richmond District — Richmond Residences";
+const OG_IMAGE = `${SITE}/images/hero/hero-night.webp`;
 const DISCLAIMER =
   "richmondresidences.ae is an independent marketing site for Richmond Residences developments by Mira Developments, including Al Furjan, Dubai and Mira Coral Bay, Ras Al Khaimah. This is not the official Mira Developments website. Project details, pricing, and availability are subject to change and should be verified with Mira Developments or an authorized representative.";
 
@@ -237,9 +239,8 @@ function nav(depth) {
   return `
     <header class="nav-wrap">
       <nav class="nav container" aria-label="Primary">
-        <a class="nav-brand" href="${root}">
-          <span class="brand-mark">RR</span>
-          <span class="brand-text">Richmond <em>Residences</em></span>
+        <a class="nav-brand" href="${root}" aria-label="Richmond Residences home">
+          <img src="${root}images/logos/richmond-logo.png" alt="${esc(LOGO_ALT)}" class="nav-logo" width="160" height="48">
         </a>
         <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Open menu">
           <span></span><span></span><span></span>
@@ -263,8 +264,8 @@ function footer(depth) {
     <footer class="site-footer">
       <div class="container footer-grid">
         <div>
-          <p class="footer-brand">Richmond Residences</p>
-          <p class="footer-tag">Richmond District by Mira Developments — Al Furjan, Dubai</p>
+          <img src="${prefix}images/logos/richmond-logo.png" alt="${esc(LOGO_ALT)}" class="footer-logo" width="140" height="42">
+          <p class="footer-tag">Richmond District by Mira Developments — Al Furjan, Dubai &amp; Mira Coral Bay, RAK</p>
         </div>
         <nav class="footer-links" aria-label="Footer">
           ${FOOTER_LINKS.map(
@@ -314,7 +315,7 @@ function pageShell({ depth, title, description, canonical, path, schemas, body, 
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(description)}">
   <meta name="twitter:image" content="${pageOg}">
-  <link rel="icon" href="${prefix}images/og-image.webp" type="image/webp">
+  <link rel="icon" href="${prefix}images/logos/richmond-logo.png" type="image/png">
   <link rel="manifest" href="${prefix}manifest.json">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
