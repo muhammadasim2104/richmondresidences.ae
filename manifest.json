@@ -1,0 +1,16 @@
+{
+  "name": "Richmond Residences",
+  "short_name": "Richmond",
+  "description": "Richmond Residences (Richmond District) by Mira Developments, Al Furjan, Dubai",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/images/og-image.webp",
+      "sizes": "512x512",
+      "type": "image/webp"
+    }
+  ]
+}
