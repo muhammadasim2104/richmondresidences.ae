@@ -60,6 +60,9 @@
       submitBtn.disabled = true;
       if (alertEl) alertEl.hidden = true;
 
+      const projectSlug = String(form.querySelector('[name="project_slug"]')?.value || "richmond-residences").trim();
+      const projectName = String(form.querySelector('[name="project_name"]')?.value || "Richmond Residences").trim();
+
       const payload = {
         name,
         full_name: name,
@@ -67,8 +70,8 @@
         country_code: countryCode,
         phone,
         interest,
-        project_slug: "richmond-residences",
-        project_name: "Richmond Residences",
+        project_slug: projectSlug,
+        project_name: projectName,
         source_page: window.location.href,
         funnel_session_id: window.RichmondAnalytics?.sessionId?.(),
         tu_hp_confirm: "",

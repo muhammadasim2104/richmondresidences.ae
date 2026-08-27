@@ -6,7 +6,8 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const SITE = "https://richmondresidences.ae";
-const ASSET_VERSION = "20260827a";
+const ASSET_VERSION = "20260828a";
+const OG_CORAL = `${SITE}/images/coral-bay/og-image.webp`;
 
 const GEO = {
   region: "AE-DU",
@@ -17,7 +18,7 @@ const GEO = {
 
 const OG_IMAGE = `${SITE}/images/og-image.webp`;
 const DISCLAIMER =
-  "richmondresidences.ae is an independent marketing site for Richmond Residences (Richmond District) by Mira Developments. This is not the official Mira Developments website. Project details, pricing, and availability are subject to change and should be verified with Mira Developments or an authorized representative.";
+  "richmondresidences.ae is an independent marketing site for Richmond Residences developments by Mira Developments, including Al Furjan, Dubai and Mira Coral Bay, Ras Al Khaimah. This is not the official Mira Developments website. Project details, pricing, and availability are subject to change and should be verified with Mira Developments or an authorized representative.";
 
 const UNITS = [
   { type: "Studio", slug: "studio", sqm: 39, sqft: 420, aed: 943500, usd: 256909 },
@@ -34,6 +35,7 @@ const NAV_LINKS = [
   { href: "/al-furjan-properties/", label: "Al Furjan" },
   { href: "/#amenities", label: "Amenities" },
   { href: "/#faqs", label: "FAQs" },
+  { href: "/#flagship-projects", label: "RAK" },
 ];
 
 const FOOTER_LINKS = [
@@ -43,6 +45,7 @@ const FOOTER_LINKS = [
   { href: "/price-list/", label: "Price List" },
   { href: "/payment-plan/", label: "Payment Plan" },
   { href: "/al-furjan-properties/", label: "Properties in Al Furjan" },
+  { href: "/richmond-residences-mira-coral-bay/", label: "Mira Coral Bay, RAK" },
 ];
 
 const INTEREST_OPTIONS = [
@@ -156,6 +159,11 @@ function leadForm(depth, opts = {}) {
   const button = opts.button || "Submit Enquiry";
   const id = opts.id || "register";
   const defaultInterest = opts.defaultInterest || "";
+  const projectSlug = opts.projectSlug || "richmond-residences";
+  const projectName = opts.projectName || "Richmond Residences";
+  const consentText =
+    opts.consentText ||
+    "By submitting, you consent to be contacted regarding Richmond Residences (Richmond District). Your information will not be shared beyond authorised project representatives.";
 
   const options = INTEREST_OPTIONS.map(
     (o) =>
@@ -170,12 +178,12 @@ function leadForm(depth, opts = {}) {
             <p class="eyebrow">Get in touch</p>
             <h2>${esc(heading)}</h2>
             <p>${esc(sub)}</p>
-            <p class="form-consent">By submitting, you consent to be contacted regarding Richmond Residences (Richmond District). Your information will not be shared beyond authorised project representatives.</p>
+            <p class="form-consent">${esc(consentText)}</p>
           </div>
           <form class="form" action="${prefix}api/enquire" method="post" novalidate>
             <input type="hidden" name="source_page" value="${esc(sourcePage)}">
-            <input type="hidden" name="project_slug" value="richmond-residences">
-            <input type="hidden" name="project_name" value="Richmond Residences">
+            <input type="hidden" name="project_slug" value="${esc(projectSlug)}">
+            <input type="hidden" name="project_name" value="${esc(projectName)}">
             <div class="form-alert" role="status" aria-live="polite" hidden></div>
             <label class="field">
               <span>Full Name</span>
@@ -273,21 +281,23 @@ function footer(depth) {
     </footer>`;
 }
 
-function pageShell({ depth, title, description, canonical, path, schemas, body, keywords }) {
+function pageShell({ depth, title, description, canonical, path, schemas, body, keywords, geo, ogImage }) {
   const prefix = assetPrefix(depth);
   const cssHref = `${prefix}css/styles.css?v=${ASSET_VERSION}`;
   const jsTracker = `${prefix}js/tracker.js?v=${ASSET_VERSION}`;
   const jsMain = `${prefix}js/main.js?v=${ASSET_VERSION}`;
+  const pageGeo = geo || GEO;
+  const pageOg = ogImage || OG_IMAGE;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="geo.region" content="${GEO.region}">
-  <meta name="geo.placename" content="${esc(GEO.placename)}">
-  <meta name="geo.position" content="${GEO.lat};${GEO.lng}">
-  <meta name="ICBM" content="${GEO.lat}, ${GEO.lng}">
+  <meta name="geo.region" content="${pageGeo.region}">
+  <meta name="geo.placename" content="${esc(pageGeo.placename)}">
+  <meta name="geo.position" content="${pageGeo.lat};${pageGeo.lng}">
+  <meta name="ICBM" content="${pageGeo.lat}, ${pageGeo.lng}">
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}">
   ${keywords ? `<meta name="keywords" content="${esc(keywords)}">` : ""}
@@ -295,7 +305,7 @@ function pageShell({ depth, title, description, canonical, path, schemas, body, 
   <link rel="canonical" href="${esc(canonical)}">
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(description)}">
-  <meta property="og:image" content="${OG_IMAGE}">
+  <meta property="og:image" content="${pageOg}">
   <meta property="og:url" content="${esc(canonical)}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Richmond Residences">
@@ -303,7 +313,7 @@ function pageShell({ depth, title, description, canonical, path, schemas, body, 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(description)}">
-  <meta name="twitter:image" content="${OG_IMAGE}">
+  <meta name="twitter:image" content="${pageOg}">
   <link rel="icon" href="${prefix}images/og-image.webp" type="image/webp">
   <link rel="manifest" href="${prefix}manifest.json">
   <meta name="theme-color" content="#0a0a0a">
@@ -593,6 +603,7 @@ function homePage() {
 
     ${faqBlock(HOME_FAQS)}
     ${leadForm(0, { heading: "Request Brochure, Floor Plans &amp; Price List", sub: "Complete the form and a representative will send Richmond District materials and current availability." })}
+    ${coralBay.flagshipSection()}
   `;
 
   return pageShell({ depth: 0, title, description, canonical: `${SITE}/`, path: "/", keywords, schemas, body });
@@ -804,7 +815,15 @@ Sitemap: ${SITE}/sitemap.xml
 }
 
 function sitemapXml() {
-  const pages = ["/", "/brochure/", "/floor-plans/", "/payment-plan/", "/price-list/", "/al-furjan-properties/"];
+  const pages = [
+    "/",
+    "/brochure/",
+    "/floor-plans/",
+    "/payment-plan/",
+    "/price-list/",
+    "/al-furjan-properties/",
+    ...coralBay.sitemapPaths(),
+  ];
   const urls = pages
     .map(
       (p) => `  <url>
@@ -838,12 +857,35 @@ function manifestJson() {
   );
 }
 
+const coralBay = require("./coral-bay").register({
+  SITE,
+  esc,
+  fmtAed,
+  jsonLd,
+  breadcrumbs,
+  faqSchema,
+  assetPrefix,
+  pageShell,
+  subpageHero,
+  backLink,
+  faqBlock,
+  leadForm,
+  OG_CORAL,
+});
+
+const coralPages = coralBay.pages();
+
 writeFile("index.html", homePage());
 writeFile("brochure/index.html", brochurePage());
 writeFile("floor-plans/index.html", floorPlansPage());
 writeFile("payment-plan/index.html", paymentPlanPage());
 writeFile("price-list/index.html", priceListPage());
 writeFile("al-furjan-properties/index.html", alFurjanPage());
+writeFile("richmond-residences-mira-coral-bay/index.html", coralPages.main);
+writeFile("richmond-residences-mira-coral-bay/brochure/index.html", coralPages.brochure);
+writeFile("richmond-residences-mira-coral-bay/floor-plans/index.html", coralPages.floorPlans);
+writeFile("richmond-residences-mira-coral-bay/payment-plan/index.html", coralPages.paymentPlan);
+writeFile("richmond-residences-mira-coral-bay/price-list/index.html", coralPages.priceList);
 writeFile("robots.txt", robotsTxt());
 writeFile("sitemap.xml", sitemapXml());
 writeFile("manifest.json", manifestJson());

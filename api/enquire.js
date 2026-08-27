@@ -58,7 +58,7 @@ function logPartialAttempt(body, ctx, stamp, opts) {
     formName: "project_inquiry",
     sourcePage: String(body?.source_page || body?.page_path || SITE_URL).slice(0, 500),
     funnelSessionId: String(body?.funnel_session_id || body?.funnelSessionId || "").trim().slice(0, 120),
-    product: "richmond-residences",
+    product: productSlug,
     attribution: body?.attribution,
     client: { ...ctx, ip_hash: stamp?.ip_hash },
   }).catch(() => {});
@@ -152,8 +152,9 @@ module.exports = async function handler(req, res) {
   const fullName = String(body.name || body.full_name || "").trim();
   const email = String(body.email || "").trim().toLowerCase();
   const phone = e164(body.country_code, body.phone);
+  const productName = String(body.project_name || "Richmond Residences").trim().slice(0, 120) || "Richmond Residences";
+  const productSlug = String(body.project_slug || "richmond-residences").trim().slice(0, 80) || "richmond-residences";
   const interest = String(body.interest || "").trim().slice(0, 120);
-  const productName = "Richmond Residences";
   const message = [String(body.message || "").trim(), interest ? `Interest: ${interest}` : "", `Project: ${productName}`]
     .filter(Boolean)
     .join("\n")
@@ -215,7 +216,7 @@ module.exports = async function handler(req, res) {
       phone,
       city: "",
       interest,
-      product: "richmond-residences",
+      product: productSlug,
       productName,
       message: message || `I would like more details about ${productName}.`,
       sourcePage,
