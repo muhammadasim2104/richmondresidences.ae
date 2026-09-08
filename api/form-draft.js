@@ -39,6 +39,7 @@ function sanitizeEvents(rawEvents, fallback) {
   const sourcePage = clip(fallback.sourcePage, 500) || "/";
   const formName = clip(fallback.formName, 80) || ALLOWED_FORM;
   const funnelSessionId = clip(fallback.funnelSessionId, 80);
+  const projectSlug = clip(fallback.projectSlug, 80) || PROJECT_SLUG;
 
   return (Array.isArray(rawEvents) ? rawEvents : [])
     .slice(0, 30)
@@ -50,7 +51,7 @@ function sanitizeEvents(rawEvents, fallback) {
       if (!ALLOWED_EVENTS.has(eventType)) return null;
       return {
         form_name: formName,
-        project_slug: PROJECT_SLUG,
+        project_slug: projectSlug,
         site_key: SITE_KEY,
         funnel_session_id: funnelSessionId,
         source_page: clip(event.source_page || sourcePage, 500) || "/",
@@ -92,10 +93,16 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  const action = body?.action === "mark_submitted" ? "mark_submitted" : "capture";
+  const action =
+    body?.action === "mark_submitted"
+      ? "mark_submitted"
+      : body?.action === "abandon"
+        ? "abandon"
+        : "capture";
   const formName = clip(body?.form_name, 80);
   const funnelSessionId = clip(body?.funnel_session_id, 80);
   const sourcePage = clip(body?.source_page, 500) || "/";
+  const projectSlug = clip(body?.project_slug, 80) || PROJECT_SLUG;
   const submittedAt = clip(body?.submitted_at, 40) || new Date().toISOString();
   const snapshot = cleanSnapshot(body?.snapshot);
 
@@ -112,6 +119,7 @@ module.exports = async function handler(req, res) {
     formName,
     sourcePage,
     funnelSessionId,
+    projectSlug,
   });
 
   try {
@@ -123,10 +131,12 @@ module.exports = async function handler(req, res) {
       funnelSessionId,
       submittedAt,
       snapshot,
+      projectSlug,
       attribution: body?.attribution,
+      abandonReason: clip(body?.abandon_reason, 80),
       client: { ...ctx, ip_hash: ipHash },
     });
-    if (action === "mark_submitted") {
+    if (action === "mark_submitted" || action === "abandon") {
       json(res, 200, { ok: true });
       return;
     }

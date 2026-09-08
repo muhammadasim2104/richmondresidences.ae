@@ -1,7 +1,7 @@
 const { SITE_URL } = require("./config");
 
-const BRAND_URL = "https://theupsides.ae";
-const LOGO_URL = `${BRAND_URL}/brand/logos/footer-logo-cream-400.png`;
+const BRAND_URL = SITE_URL;
+const LOGO_URL = `${SITE_URL}/images/logos/richmond-logo-light.png`;
 
 let regionNames = null;
 try {
@@ -108,7 +108,7 @@ function leadNotifyHtml(opts) {
               <a href="${escapeHtml(BRAND_URL)}" style="display:inline-block;text-decoration:none">
                 <img
                   src="${escapeHtml(LOGO_URL)}"
-                  alt="The Upsides"
+                  alt="Richmond Residences"
                   width="200"
                   height="53"
                   style="display:block;width:200px;height:auto;border:0;outline:none"

@@ -1,10 +1,20 @@
 (() => {
-  const PROJECT_SLUG = "richmond-residences";
-  const WEBSITE = "Richmond Residences";
-  const WEBSITE_URL = "https://richmondresidences.ae";
   const SITE_KEY = "richmondresidences";
+  const WEBSITE_URL = "https://richmondresidences.ae";
   const FORM_NAME = "project_inquiry";
   const recent = new Map();
+
+  function projectSlug() {
+    return (
+      document.body?.dataset?.projectSlug ||
+      document.querySelector('form.form [name="project_slug"]')?.value ||
+      "richmond-residences"
+    );
+  }
+
+  function websiteName() {
+    return document.body?.dataset?.projectName || "Richmond Residences";
+  }
 
   function newId() {
     if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
@@ -40,19 +50,22 @@
 
   function track(eventName, extra) {
     if (!eventName || shouldSkip(`${eventName}:${JSON.stringify(extra || {})}`)) return;
+    const slug = projectSlug();
     const payload = {
       event_name: eventName,
       form_name: extra?.form_name || FORM_NAME,
       error_type: extra?.error_type || null,
-      project_slug: PROJECT_SLUG,
-      website: WEBSITE,
+      project_slug: slug,
+      website: websiteName(),
       website_url: WEBSITE_URL,
       page_path: extra?.page_path || pagePath(),
       metadata: {
         funnel_session_id: sessionId(),
-        website: WEBSITE,
+        website: websiteName(),
         website_url: WEBSITE_URL,
         site: SITE_KEY,
+        product: slug,
+        project_slug: slug,
         ...(extra?.metadata || {}),
       },
     };
@@ -73,6 +86,6 @@
     }).catch(() => {});
   }
 
-  window.RichmondAnalytics = { track, sessionId };
+  window.RichmondAnalytics = { track, sessionId, projectSlug, websiteName, SITE_KEY };
   track("page_view");
 })();

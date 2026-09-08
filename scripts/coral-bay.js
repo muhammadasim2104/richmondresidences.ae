@@ -40,10 +40,15 @@ function register(deps) {
     assetPrefix,
     pageShell,
     subpageHero,
-    backLink,
+    SUBPAGE_HERO_CORAL,
     faqBlock,
     leadForm,
     heroSection,
+    heroFormCompact,
+    modalTriggerBtn,
+    inquiryModal,
+    newTabAttrs,
+    resourceLink,
     OG_CORAL,
     OG_CORAL_ALT,
     OG_CORAL_W,
@@ -211,6 +216,13 @@ function register(deps) {
     },
   ];
 
+  const coralPageShell = {
+    geo: CORAL_BAY_GEO,
+    projectSlug: CORAL_BAY_SLUG,
+    projectName: CORAL_BAY_NAME,
+    ...ogOpts,
+  };
+
   function coralLeadForm(depth, opts = {}) {
     return leadForm(depth, {
       ...opts,
@@ -219,6 +231,11 @@ function register(deps) {
       projectName: CORAL_BAY_NAME,
       consentText:
         "By submitting, you consent to be contacted regarding John Richmond Residences at Mira Coral Bay, Ras Al Khaimah.",
+      benefits: opts.benefits || [
+        "Mira Coral Bay brochure and floor plan PDFs",
+        "Current price list, availability, and 50/50 payment plan",
+        "Independent guidance for Richmond Residences, RAK",
+      ],
     });
   }
 
@@ -253,8 +270,12 @@ function register(deps) {
         { label: "Homes", value: "293" },
         { label: "Status", value: "Under construction" },
       ],
-      exploreHref: "#overview",
-      exploreLabel: "Explore Mira Coral Bay",
+      formHtml: heroFormCompact(depth, {
+        path: `${CORAL_BAY_PATH}/`,
+        projectSlug: CORAL_BAY_SLUG,
+        projectName: CORAL_BAY_NAME,
+        defaultInterest: "Brochure & Project Details",
+      }),
     })}
 
     <section class="section" id="overview">
@@ -279,12 +300,12 @@ function register(deps) {
         <div class="section-head">
           <p class="eyebrow">Unit types &amp; pricing</p>
           <h2>Richmond Residences Mira Coral Bay — Starting Prices</h2>
-          <p>Studios through 3-bed duplexes at Richmond Residences, Ras Al Khaimah. <a href="./price-list/">View the Mira Coral Bay price list</a>.</p>
+          <p>Studios through 3-bed duplexes at Richmond Residences, Ras Al Khaimah. <a href="./price-list/"${newTabAttrs("./price-list/")}>View the Mira Coral Bay price list</a>.</p>
         </div>
         ${pricingTableCoral(depth)}
         <div class="cta-row">
-          <a class="btn btn-accent" href="./price-list/">Mira Coral Bay Price List</a>
-          <a class="btn btn-outline" href="./payment-plan/">Payment Plan</a>
+          ${resourceLink("./price-list/", "Mira Coral Bay Price List", "btn btn-accent")}
+          ${resourceLink("./payment-plan/", "Payment Plan", "btn btn-outline")}
         </div>
       </div>
     </section>
@@ -387,7 +408,7 @@ function register(deps) {
     </section>
 
     ${faqBlock(CORAL_FAQS)}
-    ${coralLeadForm(depth, { heading: "Request Mira Coral Bay Brochure &amp; Price List", button: "Submit Enquiry" })}
+    ${coralLeadForm(depth, { heading: "Request Mira Coral Bay Brochure & Price List", button: "Submit Enquiry" })}
   `;
 
     return pageShell({
@@ -399,8 +420,7 @@ function register(deps) {
       keywords,
       schemas,
       body,
-      geo: CORAL_BAY_GEO,
-      ...ogOpts,
+      ...coralPageShell,
     });
   }
 
@@ -419,8 +439,7 @@ function register(deps) {
       ),
     ];
     const body = `
-    ${subpageHero("Mira Coral Bay Brochure", "Fact sheet for John Richmond Residences at Mira Coral Bay, Al Mairid, Ras Al Khaimah.")}
-    <p class="back-link container"><a href="../">Back to Richmond Residences Mira Coral Bay</a></p>
+    ${subpageHero("Mira Coral Bay Brochure", "Fact sheet for John Richmond Residences at Mira Coral Bay, Al Mairid, Ras Al Khaimah.", { depth, ...SUBPAGE_HERO_CORAL })}
     <section class="section">
       <div class="container stack prose-full">
         <h2>Richmond Residences, Ras Al Khaimah — Summary</h2>
@@ -436,7 +455,7 @@ function register(deps) {
     </section>
     ${coralLeadForm(depth, { path: `${CORAL_BAY_PATH}/brochure/`, defaultInterest: "Brochure & Project Details", heading: "Request Mira Coral Bay Brochure", button: "Request Brochure" })}
   `;
-    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/brochure/`, path: `${CORAL_BAY_PATH}/brochure/`, schemas, body, geo: CORAL_BAY_GEO, ...ogOpts });
+    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/brochure/`, path: `${CORAL_BAY_PATH}/brochure/`, schemas, body, ...coralPageShell });
   }
 
   function coralFloorPlansPage() {
@@ -463,13 +482,12 @@ function register(deps) {
       </article>`,
     ).join("\n");
     const body = `
-    ${subpageHero("Mira Coral Bay Floor Plans", "Studios to 3-bed duplexes at John Richmond Residences, Al Mairid, Ras Al Khaimah.")}
-    <p class="back-link container"><a href="../">Richmond Residences Mira Coral Bay — Overview</a></p>
+    ${subpageHero("Mira Coral Bay Floor Plans", "Studios to 3-bed duplexes at John Richmond Residences, Al Mairid, Ras Al Khaimah.", { depth, ...SUBPAGE_HERO_CORAL })}
     <section class="section"><div class="container"><div class="unit-grid unit-grid-wide">${cards}</div>
     <p class="section-note">Building: G + 8 + Roof. Layout drawings provided on request for current EOI inventory at Mira Coral Bay.</p></div></section>
     ${coralLeadForm(depth, { path: `${CORAL_BAY_PATH}/floor-plans/`, defaultInterest: "Floor Plans", heading: "Request Mira Coral Bay Floor Plans", button: "Request Floor Plans" })}
   `;
-    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/floor-plans/`, path: `${CORAL_BAY_PATH}/floor-plans/`, schemas, body, geo: CORAL_BAY_GEO, ...ogOpts });
+    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/floor-plans/`, path: `${CORAL_BAY_PATH}/floor-plans/`, schemas, body, ...coralPageShell });
   }
 
   function coralPaymentPlanPage() {
@@ -487,13 +505,12 @@ function register(deps) {
       ),
     ];
     const body = `
-    ${subpageHero("Mira Coral Bay Payment Plan", "50/50 payment structure for Richmond Residences, Ras Al Khaimah — pre-handover and post-handover breakdown.")}
-    <p class="back-link container"><a href="../">John Richmond Residences at Mira Coral Bay</a></p>
+    ${subpageHero("Mira Coral Bay Payment Plan", "50/50 payment structure for Richmond Residences, Ras Al Khaimah — pre-handover and post-handover breakdown.", { depth, ...SUBPAGE_HERO_CORAL })}
     <section class="section"><div class="container stack plan-page-wrap">${paymentPlanDetail()}
-    <p>${esc(HANDOVER_NOTE)} See the <a href="../price-list/">Mira Coral Bay price list</a> for starting prices.</p></div></section>
+    <p>${esc(HANDOVER_NOTE)} See the <a href="../price-list/"${newTabAttrs("../price-list/")}>Mira Coral Bay price list</a> for starting prices.</p></div></section>
     ${coralLeadForm(depth, { path: `${CORAL_BAY_PATH}/payment-plan/`, defaultInterest: "Payment Plan", heading: "Get Payment Schedule Details", button: "Request Payment Plan" })}
   `;
-    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/payment-plan/`, path: `${CORAL_BAY_PATH}/payment-plan/`, schemas, body, geo: CORAL_BAY_GEO, ...ogOpts });
+    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/payment-plan/`, path: `${CORAL_BAY_PATH}/payment-plan/`, schemas, body, ...coralPageShell });
   }
 
   function coralPriceListPage() {
@@ -512,8 +529,7 @@ function register(deps) {
       ),
     ];
     const body = `
-    ${subpageHero("Mira Coral Bay Price List", "Starting prices for Richmond Residences, Ras Al Khaimah — John Richmond collection at Mira Coral Bay.")}
-    <p class="back-link container"><a href="../../">Richmond Residences — Dubai home</a> · <a href="../">Mira Coral Bay overview</a></p>
+    ${subpageHero("Mira Coral Bay Price List", "Starting prices for Richmond Residences, Ras Al Khaimah — John Richmond collection at Mira Coral Bay.", { depth, ...SUBPAGE_HERO_CORAL })}
     <section class="section"><div class="container">
     <p>All prices for fully furnished John Richmond Residences at Mira Coral Bay. EOI status as of August 2026 — register for current availability at Richmond Residences, RAK.</p>
     ${pricingTableCoral(depth)}
@@ -521,27 +537,38 @@ function register(deps) {
     </div></section>
     ${coralLeadForm(depth, { path: `${CORAL_BAY_PATH}/price-list/`, defaultInterest: "Price List & Availability", heading: "Request Current Availability", button: "Get Price List" })}
   `;
-    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/price-list/`, path: `${CORAL_BAY_PATH}/price-list/`, schemas, body, geo: CORAL_BAY_GEO, ...ogOpts });
+    return pageShell({ depth, title, description, canonical: `${SITE}${CORAL_BAY_PATH}/price-list/`, path: `${CORAL_BAY_PATH}/price-list/`, schemas, body, ...coralPageShell });
   }
 
   function flagshipSection() {
+    const coralBase = "./richmond-residences-mira-coral-bay/";
     return `
     <section class="section section-flagship" id="flagship-projects">
       <div class="container">
         <div class="section-head">
           <p class="eyebrow">Flagship projects</p>
           <h2>Richmond Residences, Ras Al Khaimah</h2>
-          <p>Mira Developments and John Richmond have also brought this collaboration to Mira Coral Bay in Ras Al Khaimah. Explore John Richmond Residences at Mira Coral Bay.</p>
+          <p>Mira Developments and John Richmond have also brought this collaboration to Mira Coral Bay in Ras Al Khaimah.</p>
         </div>
-        <a class="project-card" href="./richmond-residences-mira-coral-bay/">
-          <img src="./images/coral-bay/exterior/ext-3.webp" alt="John Richmond Residences at Mira Coral Bay, Ras Al Khaimah" loading="lazy">
+        <article class="project-card project-card-balanced">
+          <div class="project-card-media">
+            <img src="./images/coral-bay/exterior/ext-3.webp" alt="John Richmond Residences at Mira Coral Bay, Ras Al Khaimah" loading="lazy">
+          </div>
           <div class="project-card-body">
             <p class="project-card-location">Al Mairid · Ras Al Khaimah · Mira Coral Bay</p>
             <h3>John Richmond Residences at Mira Coral Bay</h3>
             <p class="project-card-meta">Studios to 3-bed duplexes · 293 homes · From AED 550,000</p>
-            <span class="project-card-cta">Explore Richmond Residences, RAK &rarr;</span>
+            <p class="project-card-copy">Waterfront branded homes by Mira Developments and John Richmond — a separate Richmond Residences collection in Ras Al Khaimah, distinct from the Al Furjan, Dubai masterplan.</p>
+            <div class="project-card-actions">
+              <a class="btn btn-accent btn-sm" href="${coralBase}">Coral Bay</a>
+              ${modalTriggerBtn({ label: "Brochure", heading: "Request Mira Coral Bay Brochure", interest: "Brochure & Project Details" })}
+              ${modalTriggerBtn({ label: "Floor Plans", heading: "Request Mira Coral Bay Floor Plans", interest: "Floor Plans" })}
+              ${modalTriggerBtn({ label: "Payment Plan", heading: "Get Mira Coral Bay Payment Plan", interest: "Payment Plan" })}
+              ${modalTriggerBtn({ label: "Price List", heading: "Request Mira Coral Bay Price List", interest: "Price List & Availability" })}
+              ${modalTriggerBtn({ label: "Register Interest", heading: "Register Interest — Mira Coral Bay", interest: "Brochure & Project Details", variant: "accent" })}
+            </div>
           </div>
-        </a>
+        </article>
       </div>
     </section>`;
   }

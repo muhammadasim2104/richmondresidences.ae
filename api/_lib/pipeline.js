@@ -267,9 +267,146 @@ function ingestConfigured() {
 
 function shouldForwardLeadsToIngest() {
   if (!ingestConfigured()) return false;
-  if (envFlag("ENABLE_LEAD_INGEST_FORWARD")) return true;
-  // When Supabase is not configured locally/satellite-only, ingest is the inbox sink.
-  return !supabaseConfigured();
+  if (envFlag("DISABLE_LEAD_INGEST_FORWARD")) return false;
+  return true;
+}
+
+const partialNotifyCache = globalScope.__richmondPartialNotifyCache || new Map();
+globalScope.__richmondPartialNotifyCache = partialNotifyCache;
+const submittedSessionCache = globalScope.__richmondSubmittedSessionCache || new Map();
+globalScope.__richmondSubmittedSessionCache = submittedSessionCache;
+const PARTIAL_NOTIFY_TTL_MS = 15 * 60 * 1000;
+
+function cleanupPartialNotifyCache(now = Date.now()) {
+  for (const [key, expiresAt] of partialNotifyCache.entries()) {
+    if (expiresAt <= now) partialNotifyCache.delete(key);
+  }
+}
+
+function reservePartialNotify(key, now = Date.now()) {
+  cleanupPartialNotifyCache(now);
+  const prev = partialNotifyCache.get(key);
+  if (prev && prev > now) return false;
+  partialNotifyCache.set(key, now + PARTIAL_NOTIFY_TTL_MS);
+  return true;
+}
+
+function cleanupSubmittedSessionCache(now = Date.now()) {
+  for (const [key, expiresAt] of submittedSessionCache.entries()) {
+    if (expiresAt <= now) submittedSessionCache.delete(key);
+  }
+}
+
+function submittedSessionKey(funnelSessionId, email) {
+  const session = clip(funnelSessionId, 120) || "no-session";
+  const safeEmail = normalizeLeadEmail(email) || "no-email";
+  return `${PROJECT_SLUG}|${session}|${safeEmail}`;
+}
+
+function markSessionSubmitted(funnelSessionId, email, now = Date.now()) {
+  cleanupSubmittedSessionCache(now);
+  submittedSessionCache.set(
+    submittedSessionKey(funnelSessionId, email),
+    now + PARTIAL_NOTIFY_TTL_MS,
+  );
+}
+
+function wasSessionSubmitted(funnelSessionId, email, now = Date.now()) {
+  cleanupSubmittedSessionCache(now);
+  const expiresAt = submittedSessionCache.get(submittedSessionKey(funnelSessionId, email));
+  return Boolean(expiresAt && expiresAt > now);
+}
+
+function partialStatusLabel(status, errorReason) {
+  const s = clip(status, 40).toLowerCase();
+  if (s === "abandoned" || s === "abandon") {
+    return "Form not submitted — visitor left before completing";
+  }
+  if (s === "validation") return "Form not submitted — validation failed";
+  if (s === "error" || s === "persist") {
+    return `Form not submitted — error (${clip(errorReason, 120) || "server"})`;
+  }
+  return "Form not submitted — partial details captured while typing";
+}
+
+async function notifyPartialLead({
+  status,
+  errorReason,
+  snapshot,
+  formName,
+  sourcePage,
+  funnelSessionId,
+  product,
+  productName,
+  attribution,
+  client,
+}) {
+  const safeSnapshot = sanitizeDraftSnapshot(snapshot);
+  if (!snapshotHasContact(safeSnapshot)) return { via: "skipped" };
+
+  const hints = leadFieldHints(safeSnapshot);
+  const email = hints.email || "";
+  const session = clip(funnelSessionId, 120) || "no-session";
+  if (wasSessionSubmitted(session, email)) return { via: "submitted-session" };
+
+  const notifyKey = hashText(`${PROJECT_SLUG}|${session}|${normalizeLeadEmail(email)}|partial`).slice(
+    0,
+    48,
+  );
+  if (!reservePartialNotify(notifyKey)) return { via: "deduped" };
+
+  const stamp = dashboardClient(client);
+  const safeAttribution = sanitizeAttribution(attribution, { sourcePage });
+  const projectLabel = productLabel(product, productName);
+  const statusLabel = partialStatusLabel(status, errorReason);
+  const submittedAt = new Date().toISOString();
+  const clientIp = client?.ip || null;
+  const interest = clip(safeSnapshot.interest, 120);
+
+  const fields = buildLeadFields({
+    fullName: hints.full_name || safeSnapshot.name || "",
+    email: hints.email || "",
+    phone: hints.phone || "",
+    projectName: projectLabel,
+    productKey: product || PROJECT_SLUG,
+    interest,
+    message: hints.message || "",
+    sourcePage: sourcePage || SITE_URL,
+    attribution: safeAttribution,
+    stamp,
+    clientIp,
+    submittedAt,
+  });
+  fields.unshift({ label: "Status", value: statusLabel });
+
+  const headline = "Partial inquiry — not submitted";
+  const subhead = `${projectLabel} · ${statusLabel}`;
+
+  try {
+    await notifyAgency({
+      html: brandedLeadNotifyHtml({
+        headline,
+        subhead,
+        fields,
+        footerNote:
+          "The visitor typed these details but did not complete the form. Follow up manually — do not send an automatic reply to the visitor.",
+      }),
+      text: brandedLeadNotifyText({
+        headline,
+        subhead,
+        fields,
+        footerNote:
+          "The visitor typed these details but did not complete the form. Follow up manually — do not send an automatic reply to the visitor.",
+      }),
+      replyTo: hints.email || "",
+      visitorName: hints.full_name || "Visitor",
+      subject: `${projectLabel} - Partial inquiry (not submitted)`,
+    });
+    return { via: "email" };
+  } catch (err) {
+    console.error("[richmond:partial-notify]", err);
+    return { via: "failed" };
+  }
 }
 
 async function forwardIngest(path, body) {
@@ -470,7 +607,7 @@ async function persistLead({
   const ingestBody = {
     site: SITE_HOST,
     source: SITE_KEY,
-    project_slug: PROJECT_SLUG,
+    project_slug: productKey,
     project_name: projectName,
     product: productKey,
     full_name: fullName,
@@ -486,6 +623,7 @@ async function persistLead({
     idempotency_bucket: dedupe.bucket,
     canonical_inbox_sink: "supabase.leads",
     skip_inbox_write: true,
+    skip_notify: true,
     landing_page: safeAttribution.landing_page || null,
     current_page: safeAttribution.current_page || null,
     referrer: safeAttribution.referrer || null,
@@ -582,6 +720,7 @@ async function persistLead({
       subject: `${projectName} - New Lead`,
     });
     via.push("email");
+    markSessionSubmitted(dedupe.safeSession, email);
   } catch (err) {
     // Email is advisory only — never fail the submit when the lead row was captured.
     console.error("[parks:email:leads]", err);
@@ -644,8 +783,9 @@ async function persistEvent({ eventName, formName, errorType, pagePath, metadata
     kind: original,
     site: SITE_HOST,
     source: SITE_KEY,
-    product: compactMeta(metadata).product || "parks",
-    website: PROJECT_NAME,
+    product: compactMeta(metadata).product || PROJECT_SLUG,
+    project_slug: compactMeta(metadata).project_slug || compactMeta(metadata).product || PROJECT_SLUG,
+    website: metadata?.website || PROJECT_NAME,
     website_url: SITE_URL,
     funnel_session_id: compactMeta(metadata).funnel_session_id,
     country: stamp?.country || null,
@@ -653,11 +793,14 @@ async function persistEvent({ eventName, formName, errorType, pagePath, metadata
     client: stamp,
   };
 
+  const eventProjectSlug =
+    clip(meta.project_slug, 80) || clip(meta.product, 80) || PROJECT_SLUG;
+
   const row = {
     event_name: mapped,
     form_name: formName || (mapped.startsWith("form_") ? "project_inquiry" : null),
     error_type: errorType || null,
-    project_slug: PROJECT_SLUG,
+    project_slug: eventProjectSlug,
     page_path: (pagePath || "/").slice(0, 500),
     metadata: meta,
   };
@@ -668,7 +811,8 @@ async function persistEvent({ eventName, formName, errorType, pagePath, metadata
     const forwarded = await forwardIngest("/events", {
       ...row,
       event_name: original,
-      website: PROJECT_NAME,
+      project_slug: eventProjectSlug,
+      website: meta.website || PROJECT_NAME,
       website_url: SITE_URL,
       site: SITE_HOST,
       source: SITE_KEY,
@@ -920,6 +1064,7 @@ async function persistFormAttempt({
   sourcePage,
   funnelSessionId,
   product,
+  productName,
   attribution,
   client,
 }) {
@@ -936,7 +1081,7 @@ async function persistFormAttempt({
     funnel_session_id: clip(funnelSessionId, 120) || null,
     site: SITE_HOST,
     source: SITE_KEY,
-    product: clip(product, 80) || "parks",
+    product: clip(product, 80) || PROJECT_SLUG,
     website: PROJECT_NAME,
     website_url: SITE_URL,
     landing_page: safeAttribution.landing_page || null,
@@ -969,14 +1114,18 @@ async function persistFormDraft({
   funnelSessionId,
   submittedAt,
   snapshot,
+  projectSlug,
   client,
   attribution,
+  abandonReason,
 }) {
   const stamp = dashboardClient(client);
   const safeFormName = clip(formName, 80) || "project_inquiry";
   const safeSession = clip(funnelSessionId, 80) || null;
   const safeSourcePage = clip(sourcePage, 500) || "/";
-  const safeAction = action === "mark_submitted" ? "mark_submitted" : "capture";
+  const safeProjectSlug = clip(projectSlug, 80) || PROJECT_SLUG;
+  const safeAction =
+    action === "mark_submitted" ? "mark_submitted" : action === "abandon" ? "abandon" : "capture";
   const validEvents = Array.isArray(events)
     ? events
         .slice(0, 30)
@@ -987,10 +1136,47 @@ async function persistFormDraft({
 
   if (!safeSession) return { via: "skipped" };
 
+  const latestEvent = validEvents[validEvents.length - 1] || null;
+  let safeSnapshot = sanitizeDraftSnapshot(snapshot || latestEvent?.snapshot || {});
+
+  if (safeAction === "abandon") {
+    if (snapshotHasContact(safeSnapshot)) {
+      const hints = leadFieldHints(safeSnapshot);
+      if (wasSessionSubmitted(safeSession, hints.email)) {
+        return { via: "abandon-submitted" };
+      }
+      try {
+        await notifyPartialLead({
+          status: "abandoned",
+          errorReason: abandonReason || "Visitor left without submitting",
+          snapshot: safeSnapshot,
+          formName: safeFormName,
+          sourcePage: safeSourcePage,
+          funnelSessionId: safeSession,
+          product: safeProjectSlug,
+          productName: PROJECT_NAME,
+          attribution: safeAttribution,
+          client,
+        });
+        return { via: "abandon-email" };
+      } catch (err) {
+        console.error("[richmond:partial-notify:abandon]", err);
+      }
+    }
+    return { via: "abandon-skipped" };
+  }
+
+  if (safeAction === "mark_submitted") {
+    const hints = leadFieldHints(safeSnapshot);
+    if (hints.email) {
+      markSessionSubmitted(safeSession, hints.email);
+    }
+  }
+
   try {
     if (supabaseConfigured() && validEvents.length) {
       const rows = validEvents.map((event) => ({
-        project_slug: PROJECT_SLUG,
+        project_slug: safeProjectSlug,
         site_key: SITE_KEY,
         form_name: safeFormName,
         funnel_session_id: safeSession,
@@ -1042,7 +1228,7 @@ async function persistFormDraft({
           const encodedSession = encodeURIComponent(safeSession);
           const existing = await supabaseSelect(
             "form_draft_sessions",
-            `?select=latest_snapshot&project_slug=eq.${encodeURIComponent(PROJECT_SLUG)}&form_name=eq.${encodeURIComponent(safeFormName)}&funnel_session_id=eq.${encodedSession}&limit=1`,
+            `?select=latest_snapshot&project_slug=eq.${encodeURIComponent(safeProjectSlug)}&form_name=eq.${encodeURIComponent(safeFormName)}&funnel_session_id=eq.${encodedSession}&limit=1`,
           );
           const prior = Array.isArray(existing) && existing[0]?.latest_snapshot ? existing[0].latest_snapshot : null;
           safeSnapshot = mergeDraftSnapshots(safeSnapshot, prior);
@@ -1053,7 +1239,7 @@ async function persistFormDraft({
         }
       }
       const sessionRow = {
-        project_slug: PROJECT_SLUG,
+        project_slug: safeProjectSlug,
         site_key: SITE_KEY,
         form_name: safeFormName,
         funnel_session_id: safeSession,
@@ -1122,7 +1308,7 @@ async function persistFormDraft({
       await forwardIngest("/events", {
         event_name: eventName,
         form_name: safeFormName,
-        project_slug: PROJECT_SLUG,
+        project_slug: safeProjectSlug,
         site: SITE_HOST,
         source: SITE_KEY,
         website: PROJECT_NAME,

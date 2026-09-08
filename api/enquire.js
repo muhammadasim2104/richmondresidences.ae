@@ -1,4 +1,4 @@
-const { persistLead, persistFormAttempt, persistFormDraft } = require("./_lib/pipeline");
+const { persistLead, persistFormDraft } = require("./_lib/pipeline");
 const {
   clientContext,
   dashboardClient,
@@ -6,7 +6,6 @@ const {
   readJson,
   json,
 } = require("./_lib/context");
-const { SITE_URL } = require("./_lib/config");
 const {
   isBlockedCountry,
   isUs,
@@ -30,38 +29,6 @@ function e164(countryCode, phone) {
   const national = digits.replace(/^0+/, "");
   const dial = code.startsWith("+") ? code : `+${code}`;
   return `${dial}${national}`;
-}
-
-function partialSnapshot(body) {
-  return {
-    name: String(body?.name || body?.full_name || "").trim().slice(0, 200),
-    email: String(body?.email || "").trim().slice(0, 200),
-    country_code: String(body?.country_code || "").trim().slice(0, 20),
-    phone: String(body?.phone || "").trim().slice(0, 30),
-    interest: String(body?.interest || "").trim().slice(0, 120),
-    message: String(body?.message || "").trim().slice(0, 500),
-  };
-}
-
-function hasPartialContact(snapshot) {
-  return Boolean(snapshot.name || snapshot.email || snapshot.phone);
-}
-
-function logPartialAttempt(body, ctx, stamp, opts) {
-  const snapshot = partialSnapshot(body);
-  if (!hasPartialContact(snapshot)) return;
-  persistFormAttempt({
-    status: opts.status || "partial",
-    errorReason: opts.errorReason || "",
-    errorType: opts.errorType || opts.status || "partial",
-    snapshot,
-    formName: "project_inquiry",
-    sourcePage: String(body?.source_page || body?.page_path || SITE_URL).slice(0, 500),
-    funnelSessionId: String(body?.funnel_session_id || body?.funnelSessionId || "").trim().slice(0, 120),
-    product: productSlug,
-    attribution: body?.attribution,
-    client: { ...ctx, ip_hash: stamp?.ip_hash },
-  }).catch(() => {});
 }
 
 module.exports = async function handler(req, res) {
@@ -154,7 +121,7 @@ module.exports = async function handler(req, res) {
   const phone = e164(body.country_code, body.phone);
   const productName = String(body.project_name || "Richmond Residences").trim().slice(0, 120) || "Richmond Residences";
   const productSlug = String(body.project_slug || "richmond-residences").trim().slice(0, 80) || "richmond-residences";
-  const interest = String(body.interest || "").trim().slice(0, 120);
+  const interest = String(body.interest || "General enquiry").trim().slice(0, 120) || "General enquiry";
   const message = [String(body.message || "").trim(), interest ? `Interest: ${interest}` : "", `Project: ${productName}`]
     .filter(Boolean)
     .join("\n")
@@ -165,29 +132,14 @@ module.exports = async function handler(req, res) {
     .slice(0, 120);
 
   if (fullName.length < 2) {
-    logPartialAttempt(body, ctx, stamp, {
-      status: "validation",
-      errorType: "validation",
-      errorReason: "Name too short",
-    });
     json(res, 400, { ok: false, message: "Please enter your name." });
     return;
   }
   if (!validEmail(email)) {
-    logPartialAttempt(body, ctx, stamp, {
-      status: "validation",
-      errorType: "validation",
-      errorReason: "Invalid email",
-    });
     json(res, 400, { ok: false, message: "Please enter a valid email." });
     return;
   }
   if (phone.replace(/\D/g, "").length < 8) {
-    logPartialAttempt(body, ctx, stamp, {
-      status: "validation",
-      errorType: "validation",
-      errorReason: "Invalid phone",
-    });
     json(res, 400, { ok: false, message: "Please enter a valid phone number." });
     return;
   }
@@ -270,11 +222,6 @@ module.exports = async function handler(req, res) {
     json(res, 200, { ok: true, message: "Thanks, our team will follow up shortly." });
   } catch (err) {
     console.error("[richmond:enquire]", err);
-    logPartialAttempt(body, ctx, stamp, {
-      status: "error",
-      errorType: "persist",
-      errorReason: err instanceof Error ? err.message : "Server error",
-    });
     json(res, 500, { ok: false, message: "Could not save your enquiry. Try again." });
   }
 };
