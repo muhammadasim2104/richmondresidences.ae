@@ -63,7 +63,8 @@ function serveStatic(req, res, urlPath) {
     filePath = path.join(filePath, "index.html");
   }
   if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
-    send(res, 404, "Not found", { "Content-Type": "text/plain; charset=utf-8" });
+    res.writeHead(307, { Location: "/" });
+    res.end();
     return;
   }
   const ext = path.extname(filePath).toLowerCase();

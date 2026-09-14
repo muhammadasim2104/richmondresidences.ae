@@ -8,6 +8,14 @@
       "permanent": true
     }
   ],
+  "routes": [
+    { "handle": "filesystem" },
+    {
+      "src": "/(.*)",
+      "status": 307,
+      "headers": { "Location": "/" }
+    }
+  ],
   "functions": {
     "api/*.js": {
       "excludeFiles": "{downloads,images}/**"
