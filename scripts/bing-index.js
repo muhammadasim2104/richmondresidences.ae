@@ -7,6 +7,7 @@ const { parseSitemapXml, indexUrls, siteUrl } = require("../api/_lib/bing-index"
 
 const ROOT = path.join(__dirname, "..");
 const SITEMAP_PATH = path.join(ROOT, "sitemap.xml");
+const STATE_PATH = path.join(ROOT, ".bing-index-state.json");
 
 function loadEnvFile(file) {
   const full = path.join(ROOT, file);
@@ -27,6 +28,23 @@ function loadEnvFile(file) {
 
 loadEnvFile(".env.local");
 loadEnvFile(".env");
+
+function readState() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(STATE_PATH, "utf8"));
+    return Array.isArray(raw?.urls) ? raw.urls : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeState(urls) {
+  fs.writeFileSync(
+    STATE_PATH,
+    JSON.stringify({ updated_at: new Date().toISOString(), urls: [...new Set(urls)].sort() }, null, 2),
+    "utf8",
+  );
+}
 
 async function main() {
   if (!fs.existsSync(SITEMAP_PATH)) {
@@ -51,8 +69,15 @@ async function main() {
     process.exit(0);
   }
 
-  console.log(`[bing:index] submitting ${urls.length} URL(s) from sitemap to Bing/IndexNow…`);
-  const result = await indexUrls(urls);
+  const previous = new Set(readState());
+  const pending = urls.filter((url) => !previous.has(url));
+  if (!pending.length) {
+    console.log(`[bing:index] no new URLs (${urls.length} already indexed).`);
+    process.exit(0);
+  }
+
+  console.log(`[bing:index] submitting ${pending.length} new URL(s) (${urls.length} in sitemap)…`);
+  const result = await indexUrls(pending);
 
   for (const entry of result.results || []) {
     const label = entry.provider || "provider";
@@ -65,6 +90,8 @@ async function main() {
 
   if (!result.ok && !result.skipped) {
     console.warn("[bing:index] one or more providers reported errors — deploy continues.");
+  } else if (result.ok) {
+    writeState([...previous, ...pending]);
   }
 
   console.log("[bing:index] done.");
