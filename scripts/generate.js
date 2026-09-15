@@ -1557,4 +1557,9 @@ writeFile("sitemap-images.xml", sitemapImagesXml());
 writeFile("llms.txt", llmsTxt(sitemapPages));
 writeFile("manifest.json", manifestJson());
 
+const indexNowKey = process.env.INDEXNOW_KEY || process.env.BING_INDEXNOW_KEY;
+if (indexNowKey) {
+  writeFile(`${indexNowKey}.txt`, `${indexNowKey}\n`);
+}
+
 console.log("Done — Richmond District site generated.");

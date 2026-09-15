@@ -4,6 +4,9 @@
   "description": "Marketing site for Richmond Residences (Richmond District) by Mira Developments — Al Furjan, Dubai.",
   "scripts": {
     "generate": "node scripts/generate.js",
+    "bing:index": "node scripts/bing-index.js",
+    "postgenerate": "node scripts/bing-index.js",
+    "build": "npm run bing:index",
     "dev": "node server.js",
     "start": "node server.js"
   }

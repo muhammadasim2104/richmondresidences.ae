@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
+  "buildCommand": "npm run bing:index",
   "redirects": [
     {
       "source": "/llm.txt",
@@ -55,6 +56,12 @@
     },
     {
       "source": "/robots.txt",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
+      ]
+    },
+    {
+      "source": "/:key.txt",
       "headers": [
         { "key": "Content-Type", "value": "text/plain; charset=utf-8" }
       ]
