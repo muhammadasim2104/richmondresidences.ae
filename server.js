@@ -78,7 +78,7 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname.startsWith("/api/")) {
     const name = pathname.replace(/^\/api\//, "").replace(/\/$/, "");
-    const allowed = ["enquire", "events", "config", "geo", "form-draft"];
+    const allowed = ["enquire", "events", "config", "geo", "form-draft", "bing-index"];
     if (!allowed.includes(name)) {
       send(res, 404, JSON.stringify({ ok: false }), { "Content-Type": "application/json" });
       return;
