@@ -64,8 +64,7 @@ async function main() {
   }
 
   if (!result.ok && !result.skipped) {
-    process.exitCode = 1;
-    return;
+    console.warn("[bing:index] one or more providers reported errors — deploy continues.");
   }
 
   console.log("[bing:index] done.");
